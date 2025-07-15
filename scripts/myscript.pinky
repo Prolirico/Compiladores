@@ -1,0 +1,11 @@
+println 5*5
+print 1+2
+println "Hola"
+
+func factorial(n)
+    mul :=1
+    for i := 1, n do
+        mul := mul * i
+    end
+    println("El factorial de " + n + "es " + mul)
+end
