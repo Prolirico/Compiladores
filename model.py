@@ -178,3 +178,10 @@ def FunCall(Expr):
         self.line = line
     def __repr__(self):
         return f'FunCall({self.name!r}, {self.args})'
+
+class FuncCallStmt(Stmt):
+    def __init__(self,expr):
+        assert isinstance(expr, FuncCall), expr
+        self.expr = expr
+    def __repr__(self):
+        return f'FuncCallStmt({self.expr})'

@@ -4,8 +4,12 @@ println "Hola"
 
 func factorial(n)
     mul :=1
-    for i := 1, n do
+    i := 1
+    while i <= 1, n do
         mul := mul * i
+        i := i + 1
     end
     println("El factorial de " + n + "es " + mul)
 end
+
+factorial(5)

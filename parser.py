@@ -160,8 +160,32 @@ class Parser:
         #desarrollar
         pass
 
+    def args(self):
+        args = []
+        while not self.is_next(TOK_RPAREN):
+            args.append(self.expr())
+            if not self.is_next(TOK_RPAREN):
+                self.expect(TOK_COMMA)
+        return args
+
+    def params(self):
+        params = []
+        while not self.is_next(TOK_RPAREN):
+            name = self.expect(TOK_IDENTIFIER)
+            params.append(Param(name.lexeme, line=self.previous_token().line))
+            if not self.is_next(TOK_RPAREN):
+                self.expect(TOK_COMMA)
+        return params
+
     def fun_decl(self):
-        pass
+        self.expect(TOK_FUNC)
+        name = self.expect(TOK_IDENTIFIER)
+        self.expect(TOK_LPAREN)
+        params = self.params()
+        self.expect(TOK_RPAREN)
+        body_stmts = self.stmts()
+        self.expect(TOK_END)
+        return FunDecl(name.lexeme, params, body_stmts, line=self.previous_token().line)
 
     def stmt(self):
         if self.peek().token_type == TOK_PRINT:
@@ -182,7 +206,7 @@ class Parser:
                 right = self.expr()
                 return Assignment(left,right, line=self.previous_token().line)
             else:
-                pass
+                return FuncCallStmt(self)
 
     def stmts(self):
         stmts = []
