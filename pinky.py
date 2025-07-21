@@ -31,7 +31,7 @@ if __name__ == '__main__':
         print(f'{Colors.BLUE}***************{Colors.WHITE}')
 
         parser = Parser(tokens)
-        ast = Parser(tokens).parse()
+        ast = parser.parse()
         print_pretty_ast(ast)
 
         print(f'{Colors.GREEN}***************{Colors.WHITE}')
@@ -39,5 +39,4 @@ if __name__ == '__main__':
         print(f'{Colors.GREEN}***************{Colors.WHITE}')
 
         interprete = Interprete()
-        val = interprete.interpret(ast)
-        print(val)
+        interprete.interpret_ast(ast)

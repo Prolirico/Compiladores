@@ -50,6 +50,8 @@ TOK_PRINT      = 'TOK_PRINT'
 TOK_PRINTLN    = 'TOK_PRINTLN'
 TOK_RET        = 'TOK_RET'
 TOK_EOF        = 'TOKEN_EOF'  # Added for end-of-stream
+TOK_IN = 'TOK_IN'  # in
+TOK_TO = 'TOK_TO'  # to
 
 palabras = {
     'if': TOK_IF,
@@ -67,7 +69,9 @@ palabras = {
     'end': TOK_END,
     'print': TOK_PRINT,
     'println': TOK_PRINTLN,
-    'ret': TOK_RET
+    'ret': TOK_RET,
+    'in': TOK_IN,
+    'to': TOK_TO
 }
 
 class Token:

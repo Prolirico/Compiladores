@@ -23,14 +23,14 @@ class Interprete:
             return (TYPE_BOOL, node.value)
 
         elif isinstance(node, Grouping):
-            return self.interpret(node.value)
+            return self.interpret(node.value, env)
 
         elif isinstance(node, Identifier):
-            value = env.get_var(node.name)
+            value = env.get_var (node.name)
             if value is None:
-                runtime_error(f'Identificador no declarado {node.name!r}', node.line)
+                runtime_error(f'Identificador no declarado {node.name!r}',node.line)
             if value[1] is None:
-               runtime_error(f'Identificador no inicializado {node.name!r}', node.line)
+                runtime_error(f'Identificador no inicializado {node.name!r}',node.line)
             return value
 
         elif isinstance(node, Assignment):
@@ -38,8 +38,8 @@ class Interprete:
             env.set_var(node.left.name, (righttype, rightval))
 
         elif isinstance(node, BinOp):
-            lefttype, leftval  = self.interpret(node.left)
-            righttype, rightval = self.interpret(node.right)
+            lefttype, leftval  = self.interpret(node.left, env)#se agrego env
+            righttype, rightval = self.interpret(node.right, env)#se agrego env
             if node.op.token_type == TOK_PLUS:
                 if lefttype == TYPE_NUMBER and righttype == TYPE_NUMBER:
                     return (TYPE_NUMBER, leftval + rightval)
@@ -94,7 +94,7 @@ class Interprete:
                 else:
                     runtime_error(f'Operador no soportado {node.op.lexeme!r} entre {lefttype} y {righttype}.', node.op.line)
 
-        #aqui nos toca realizar ahora el de < y <=
+            #aqui nos toca realizar ahora el de < y <=
             elif node.op.token_type == TOK_LT:
                 if(lefttype == TYPE_NUMBER and righttype == TYPE_NUMBER) or (lefttype == TYPE_STRING and righttype == TYPE_STRING):
                     return (TYPE_BOOL, leftval < rightval)
@@ -120,7 +120,7 @@ class Interprete:
                     runtime_error(f'Operador no soportado {node.op.lexeme!r} entre {lefttype} y {righttype}.', node.op.line)
 
         elif isinstance(node, UnOp):
-            operandtype, operand = self.interpret(node.operand)
+            operandtype, operand = self.interpret(node.operand, env)
             if node.op.token_type == TOK_MINUS:
                 if operandtype == TYPE_NUMBER:
                     return (TYPE_NUMBER, -operand)
@@ -139,7 +139,7 @@ class Interprete:
                 else:
                     runtime_error(f'Operador no soportado {node.op.lexeme!r} con {operandtype}.',node.op.line)
 
-        elif isinstance(node, LogicalOp):
+        elif isinstance(node, LogicalOp):#no estaba en posicion, estaba recorrido a la derecha una posición
             lefttype, leftval = self.interpret(node.left, env)
             if node.op.token_type == TOK_OR:
                 if leftval:
@@ -166,16 +166,59 @@ class Interprete:
             else:
                 self.interpret(node.else_stmts, env.new_env())
 
-        elif isinstance(node, WhileStmt):
+        elif isinstance(node,WhileStmt):
             new_env = env.new_env()
             while True:
                 testtype, testval = self.interpret(node.test, env)
                 if testtype != TYPE_BOOL:
-                    runtime_error(f'While no es una expresionn booleana.',node.line)
+                    runtime_error(f'While no es una expresión booleana.', node.line)
                 if not testval:
                     break
                 self.interpret(node.body_stmts, new_env)
 
-    def interpret_Ast(self, node):
-        env = Enviroment
+        elif isinstance(node, ForStmt):
+            start_type, start_val = self.interpret(node.start, env)
+            end_type, end_val = self.interpret(node.end, env)
+            if start_type != TYPE_NUMBER or end_type != TYPE_NUMBER:
+                runtime_error(f'Los límites del bucle for deben ser números.', node.line)
+            if not float(start_val).is_integer() or not float(end_val).is_integer():
+                runtime_error(f'Los límites del bucle for deben ser enteros.', node.line)
+            start_val = int(start_val)
+            end_val = int(end_val)
+            new_env = env.new_env()
+            for i in range(start_val, end_val + 1):
+                new_env.set_var(node.var.name, (TYPE_NUMBER, float(i)))
+                self.interpret(node.body_stmts, new_env)
+
+        elif isinstance(node, FuncDecl):
+            env.set_func(node.name, (node, env))
+
+        elif isinstance(node, FuncCall):
+            func = env.get_func(node.name)
+            if not func:
+                runtime_error(f'Funcion {node.name!r} no declarada.', node.line)
+
+            func_decl = func[0]
+
+            func_env = func[1]
+
+            if len(node.args) != len(func_decl.params):
+                runtime_error(f'Funcion {func_decl.name!r} esperada {len(func_decl.params)} se pasaron parametros pero {len(node.args)} argumentos', node.line)
+
+            args = []
+            for arg in node.args:
+                args.append(self.interpret(arg, env))
+
+            new_func_env = func_env.new_env()
+
+            for param, argval in zip(func_decl.params, args):
+                new_func_env.set_var(param.name, argval)
+
+            self.interpret(func_decl.body_stmts, new_func_env)
+
+        elif isinstance(node, FuncCallStmt):
+            self.interpret(node.expr, env)
+
+    def interpret_ast(self, node):
+        env = Environment()
         self.interpret(node, env)

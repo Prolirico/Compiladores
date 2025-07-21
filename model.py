@@ -94,7 +94,7 @@ class Identifier(Expr):
         self.line = line
 
     def __repr__(self):
-        return f'Identificador[{self.name!r}]'
+        return f'Identificador[{self.name}]'
 
 class Stmts(Node):
     def __init__(self, stmts, line):
@@ -114,26 +114,23 @@ class PrintStmt(Stmt):
         return f'PrintStmt({self.value}, end={self.end!r})'
 
 class WhileStmt(Stmt):
-    def __init__(self,test, body_stmts,line):
+    def __init__(self, test, body_stmts, line):
         assert isinstance(test, Expr), test
         assert isinstance(body_stmts, Stmts), body_stmts
         self.test = test
         self.body_stmts = body_stmts
         self.line = line
-
     def __repr__(self):
         return f'WhileStmt({self.test}, {self.body_stmts})'
-
 class Assignment(Stmt):
-    def __init__(self,left,right,line):
+    def __init__(self, left, right, line):
         assert isinstance(left, Expr), left
         assert isinstance(right, Expr), right
         self.left = left
         self.right = right
         self.line = line
-
     def __repr__(self):
-        return f'Assignment({self.left}, {self.right})'
+        return f'Assignment({self.left},{self.right})'
 
 class IfStmt(Stmt):
     def __init__(self, test, then_stmts, else_stmts, line):
@@ -148,14 +145,23 @@ class IfStmt(Stmt):
         return f'IfStmt({self.test}, entonces:{self.then_stmts}, si no:{self.else_stmts})'
 
 class ForStmt(Stmt):
-    #desarrollar
-    pass
+    def __init__(self, var, start, end, body_stmts, line):
+        assert isinstance(var, Identifier), var
+        assert isinstance(start, Expr), start
+        assert isinstance(end, Expr), end
+        assert isinstance(body_stmts, Stmts), body_stmts
+        self.var = var
+        self.start = start
+        self.end = end
+        self.body_stmts = body_stmts
+        self.line = line
+    def __repr__(self):
+        return f'ForStmt({self.var}, {self.start}, {self.end}, {self.body_stmts})'
 
 class FuncDecl(Decl):
-    def __init__(self,name,params,body_stmts,line):
+    def __init__(self, name, params, body_stmts, line):
         assert isinstance(name, str), name
         assert all(isinstance(param, Param) for param in params), params
-        assert isinstance(body_stmts, Stmts), body_stmts
         self.name = name
         self.params = params
         self.body_stmts = body_stmts
@@ -164,23 +170,23 @@ class FuncDecl(Decl):
         return f'FuncDecl({self.name!r}, {self.params}, {self.body_stmts})'
 
 class Param(Decl):
-    def __init__(self,name,line):
+    def __init__(self, name, line):
         assert isinstance(name, str), name
         self.name = name
         self.line = line
     def __repr__(self):
-        return f'Param({self.name!r}, {self.type})'
+        return f'Param[{self.name!r}]'
 
-def FunCall(Expr):
-    def __init__(self,name,args,line):
+class FuncCall(Expr):
+    def __init__(self, name, args, line):
         self.name = name
         self.args = args
         self.line = line
     def __repr__(self):
-        return f'FunCall({self.name!r}, {self.args})'
+        return f'FuncCall({self.name!r},{self.args})'
 
 class FuncCallStmt(Stmt):
-    def __init__(self,expr):
+    def __init__(self, expr):
         assert isinstance(expr, FuncCall), expr
         self.expr = expr
     def __repr__(self):

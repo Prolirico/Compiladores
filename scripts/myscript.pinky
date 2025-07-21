@@ -2,14 +2,22 @@ println 5*5
 print 1+2
 println "Hola"
 
-func factorial(n)
-    mul :=1
-    i := 1
-    while i <= 1, n do
-        mul := mul * i
-        i := i + 1
+n := 5
+if n % 2 == 0 then
+    for i in 1 to 10 do
+        println n * i
     end
-    println("El factorial de " + n + "es " + mul)
+else
+    a := 0
+    b := 1
+    println a
+    if n > 1 then
+        println b
+        for i in 3 to n do
+            c := a + b
+            println c
+            a := b
+            b := c
+        end
+    end
 end
-
-factorial(5)

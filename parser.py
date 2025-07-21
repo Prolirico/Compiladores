@@ -22,7 +22,7 @@ class Parser:
 
     def expect(self, expected_type):
         if self.curr >= len(self.tokens):
-            parse_error(f'Se encontro {self.previous_token().lexeme!r} al final del análisis', self.previous_token().line())#me falto () en previous_token
+            parse_error(f'Se encontro {self.previous_token().lexeme!r} al final del análisis', self.previous_token().line)#me falto () en previous_token
         elif self.peek().token_type == expected_type:
             token = self.advance()
             return token
@@ -57,6 +57,17 @@ class Parser:
                 parse_error(f'Error: se esperaba ")"', self.previous_token().line)
             else:
                 return Grouping(expr,line=self.previous_token().line)#se agrego el line=self.
+        else:#se agrego este else para usar el Token Identifier
+            identifier = self.expect(TOK_IDENTIFIER)
+            if self.match(TOK_LPAREN):
+                args = self.args()
+                self.expect(TOK_RPAREN)
+                return FuncCall(identifier.lexeme, args, line=self.previous_token().line)
+            else:
+                return Identifier(identifier.lexeme, line=self.previous_token().line)
+
+
+
 
     def unary(self):
         if self.match(TOK_NOT) or self.match(TOK_MINUS) or self.match(TOK_PLUS):
@@ -86,7 +97,7 @@ class Parser:
         while self.match(TOK_STAR) or self.match(TOK_SLASH):
             op = self.previous_token()
             right = self.modulo()#tenia unary
-            expr = BinOp(op, expr, right,line=op.line)#Cambie por line=op.line
+            expr = BinOp(op, expr, right, op.line)#Cambie por line=op.line
         return expr
     def addition(self):
         expr = self.multiplication()
@@ -157,8 +168,16 @@ class Parser:
         return WhileStmt(test, body_stmts, line=self.previous_token().line)
 
     def for_stmt(self):
-        #desarrollar
-        pass
+        self.expect(TOK_FOR)
+        var = self.expect(TOK_IDENTIFIER)
+        self.expect(TOK_IN)
+        start = self.expr()
+        self.expect(TOK_TO)
+        end = self.expr()
+        self.expect(TOK_DO)
+        body_stmts = self.stmts()
+        self.expect(TOK_END)
+        return ForStmt(Identifier(var.lexeme, var.line), start, end, body_stmts, line=var.line)
 
     def args(self):
         args = []
@@ -177,7 +196,7 @@ class Parser:
                 self.expect(TOK_COMMA)
         return params
 
-    def fun_decl(self):
+    def func_decl(self):
         self.expect(TOK_FUNC)
         name = self.expect(TOK_IDENTIFIER)
         self.expect(TOK_LPAREN)
@@ -185,7 +204,7 @@ class Parser:
         self.expect(TOK_RPAREN)
         body_stmts = self.stmts()
         self.expect(TOK_END)
-        return FunDecl(name.lexeme, params, body_stmts, line=self.previous_token().line)
+        return FuncDecl(name.lexeme, params, body_stmts, line=self.previous_token().line)
 
     def stmt(self):
         if self.peek().token_type == TOK_PRINT:
@@ -199,14 +218,14 @@ class Parser:
         elif self.peek().token_type == TOK_FOR:
             return self.for_stmt()
         elif self.peek().token_type == TOK_FUNC:
-            return self.fun_decl()
+            return self.func_decl()
         else:
             left = self.expr()
             if self.match(TOK_ASSIGN):
                 right = self.expr()
-                return Assignment(left,right, line=self.previous_token().line)
+                return Assignment(left, right, line=self.previous_token().line)
             else:
-                return FuncCallStmt(self)
+                return FuncCallStmt(left)
 
     def stmts(self):
         stmts = []
