@@ -1,6 +1,5 @@
 -- Defina el número a evaluar.
--- Puede cambiar el valor de 'n' para probar con números pares e impares.
-n := 35
+n := 0
 
 println "Evaluando el número: " + n
 
@@ -26,52 +25,12 @@ else
         println b
     end
 
-    -- El bucle calcula el resto de la secuencia, siempre que el siguiente número no exceda n.
-    -- El valor de 'i' se utiliza aquí para controlar la cantidad de términos generados.
-    -- La condición para continuar es que el siguiente número de Fibonacci (a + b) sea menor o igual a n.
-    -- Dado que el bucle for itera basándose en un contador 'i', necesitamos un mecanismo
-    -- para detenerlo una vez que el valor de Fibonacci generado (c) exceda 'n'.
-    -- La lógica original usaba 'i' para contar los términos, pero esto no limita el valor.
-    -- La mejor manera de lograr esto en Pinky, sin una sentencia 'break' explícita en el for,
-    -- es usar el valor de 'n' para controlar cuántos términos *potencialmente* se generan,
-    -- y confiar en la lógica de impresión que solo imprime si el término calculado es <= n.
-    -- Sin embargo, la forma más directa de implementar la condición "hasta un número igual o menos a n"
-    -- sería tener una estructura de control que verifique el valor calculado.
-    -- Dado que el 'for' de Pinky itera un número fijo de veces (o hasta 'n' si es el límite superior),
-    -- y no hay un `while` con condición de valor, la aproximación más cercana es generar
-    -- suficientes términos y solo imprimir los que cumplen la condición.
-
-    -- Ajuste para asegurar que solo se imprimen números <= n, y manejar n=1 y n=2 correctamente.
-    -- El bucle for itera 'n' veces, calculando términos.
-    -- Los términos 'a' y 'b' ya se manejan antes del bucle si n >= 1 y n >= 2.
-    -- El bucle comienza desde el tercer término.
-
-    -- Si n es 1, ya imprimimos 0 y salimos.
-    -- Si n es 2, ya imprimimos 0 y 1.
-    -- Si n es mayor que 2, el bucle for se ejecutará para generar los términos restantes.
-    -- La condición `i <= n` en el bucle `for` controla la cantidad de iteraciones basadas en el índice,
-    -- no en el valor de Fibonacci.
-
-    -- Para cumplir estrictamente con "hasta un número igual o menos a n", necesitaríamos
-    -- una condición dentro del bucle `for` o un `while` loop.
-    -- Dado que el `for` en Pinky está definido como `for i in start to end`,
-    -- el `end` actúa como un límite superior para `i`, no para el valor calculado.
-
-    -- Corrección: Modificamos el enfoque para que el bucle genere Fibonacci
-    -- y la impresión ocurra solo si el término calculado es menor o igual a n.
-    -- Reintroducimos 'a' y 'b' para el cálculo y usamos 'i' solo como contador de términos.
-
     temp_a := 0
     temp_b := 1
 
     -- Ya imprimimos el primer y segundo término si n >= 1 y n >= 2 respectivamente.
-    -- Ahora, generamos los siguientes términos hasta que el término calculado exceda 'n'.
-    -- Usaremos el bucle `for` para controlar la generación, pero la lógica de impresión
-    -- se basará en el valor del término.
-
+    -- Ahora, generamos los siguientes términos hasta que el término calculado exceda 'n'
     -- Iteramos 'n' veces como máximo para generar los términos necesarios.
-    -- El bucle `for i in 3 to n` se ajusta para generar los términos
-    -- adicionales de la secuencia, asegurando que no excedamos 'n' en el valor.
     for i in 3 to n do
         c := temp_a + temp_b
         if c <= n then
@@ -79,76 +38,6 @@ else
             temp_a := temp_b
             temp_b := c
         else
-            -- Si el siguiente número excede n, salimos del bucle.
-            -- Como no hay 'break' explícito en Pinky, detenemos la iteración
-            -- de manera conceptual al no imprimir más y permitir que el `for` termine.
-            -- El `for i in 3 to n` con la condición `c <= n` dentro se asegura de esto.
-            -- Si `c > n`, simplemente no imprimimos y el bucle continúa hasta `n`
-            -- pero no se actualizarán `temp_a` y `temp_b` con valores mayores a `n`.
-            -- Para una terminación más limpia, podríamos pensar en una forma de "salir"
-            -- del bucle, pero sin `break`, nos adherimos a la estructura actual.
-            -- La forma más efectiva de "cortar" es si el `for` tuviera una condición de valor,
-            -- pero como no la tiene, esta aproximación de `if c <= n` antes de imprimir
-            -- y actualizar las variables es la más cercana.
-            -- Si el objetivo es *exactamente* `n` o menos, y no la cantidad de términos hasta `n`,
-            -- entonces la lógica del `for` necesita ser repensada para basarse en el valor.
-
-            -- Reajuste: La condición `c <= n` dentro del `for` es la clave.
-            -- Si `c > n`, no imprimimos `c` y las variables `temp_a` y `temp_b`
-            -- no se actualizan con este valor grande. El bucle `for` seguirá iterando
-            -- hasta `n` veces, pero los valores impresos se detendrán correctamente.
-            -- Para hacer esto más explícito, si `c > n`, podríamos romper la lógica,
-            -- pero sin `break`, se asume que el bucle `for` se completará su rango.
-            -- La alternativa es un `while` loop. Dado el uso de `for`, esta es la mejor
-            -- simulación de la condición de valor.
-
-            -- Asegurarnos de que el valor de 'i' no cause problemas si 'n' es muy grande
-            -- y el valor de Fibonacci crece rápidamente. El bucle `for i in 3 to n`
-            -- ya limita la cantidad de iteraciones.
-
-            -- Si `n` fuera, por ejemplo, 5, y el bucle va de 3 a 5:
-            -- i=3: c = 0+1 = 1. print 1. temp_a=1, temp_b=1.
-            -- i=4: c = 1+1 = 2. print 2. temp_a=1, temp_b=2.
-            -- i=5: c = 1+2 = 3. print 3. temp_a=2, temp_b=3.
-            -- Aquí, `n` es el número de términos *hasta* el que queremos generar.
-            -- Si `n` es 19, queremos los números de Fibonacci que son <= 19.
-
-            -- El bucle `for i in 3 to n` genera la cantidad de términos.
-            -- La condición `c <= n` en la impresión es lo que limita el valor.
-
-            -- Si `n` es 19, y queremos solo los números <= 19:
-            -- La secuencia es: 0, 1, 1, 2, 3, 5, 8, 13, 21.
-            -- Queremos imprimir hasta 13.
-            -- El bucle `for i in 3 to 19` hará 17 iteraciones.
-            -- Necesitamos que la condición `c <= n` detenga la *actualización* de `temp_a`, `temp_b`
-            -- y la *impresión* de `c` una vez que `c` exceda `n`.
-
-            -- La lógica actual `if c <= n then println c` es correcta para controlar la impresión.
-            -- Sin embargo, `temp_a` y `temp_b` se siguen actualizando incluso si `c` es mayor que `n`,
-            -- lo que podría ser un problema si tuviéramos un bucle `while` que dependiera de esos valores.
-            -- Para el propósito de solo imprimir los valores correctos, la lógica de impresión es suficiente.
-            -- Si se necesitara que las variables `a` y `b` reflejen los últimos valores *válidos* <= n,
-            -- se necesitaría una lógica de actualización condicional.
-
-            -- Dado que el `for` en Pinky itera un rango fijo, la manera de "romper" sin `break`
-            -- es controlar las actualizaciones y la impresión.
-            -- El código ya hace que `println c` solo ocurra si `c <= n`.
-            -- Las actualizaciones `temp_a := temp_b` y `temp_b := c` deberían ocurrir *después*
-            -- de la condición `c <= n` para que reflejen los últimos valores válidos.
-
-            -- Reorganización para asegurar que las actualizaciones solo ocurran con valores válidos:
-            -- La estructura `for i in X to Y do ... end` ejecuta el bloque `...` para cada `i` en el rango.
-            -- Si queremos parar la generación *conceptualmente* cuando `c > n`,
-            -- y dado que Pinky no tiene `break`, la mejor aproximación es no actualizar
-            -- `temp_a` y `temp_b` si `c > n`.
-
-            -- Corrección final:
-            -- La variable 'i' se usa como contador de términos para el bucle 'for'.
-            -- La condición `c <= n` asegura que solo imprimimos números de Fibonacci
-            -- que no exceden 'n'.
-            -- Las actualizaciones `temp_a := temp_b` y `temp_b := c` deben ocurrir
-            -- *solo* si `c <= n` para mantener la integridad de la secuencia.
-
             if c <= n then
                 -- Si el número calculado es válido, lo imprimimos
                 -- y actualizamos las variables para el próximo cálculo.
@@ -158,11 +47,7 @@ else
             else
                 -- Si el número calculado excede 'n', simplemente no hacemos nada más
                 -- con este término y dejamos que el bucle `for` termine su curso.
-                -- No actualizamos `temp_a` y `temp_b` con `c` si `c > n`.
                 -- El bucle continuará iterando, pero no se imprimirán más valores de Fibonacci.
-                -- Para una terminación más explícita, se necesitaría una forma de salir del bucle.
-                -- Sin embargo, al no actualizar las variables si `c > n`,
-                -- el efecto es que la secuencia impresa se detiene correctamente.
             end
         end
     end
